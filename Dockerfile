@@ -1,4 +1,4 @@
-FROM python:3.8-alpine
+FROM python:3.9-alpine
 
 ARG BUILD_DATE
 ARG VCS_REF
@@ -22,13 +22,15 @@ ENV PYTHONUNBUFFERED 1
 
 ADD requirements.txt .
 RUN apk add --no-cache bash git curl openjdk8-jre-base \
+    && apk add --no-cache --virtual .build-deps build-base libffi-dev \
     && python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt \
+    && apk del .build-deps \
     && rm requirements.txt \
     && rm -rf ~/.cache/pip \
     && adduser git -S -h /home/git
 
-RUN curl -sfL https://repo1.maven.org/maven2/com/madgag/bfg/1.13.0/bfg-1.13.0.jar > /usr/share/bfg.jar
+RUN curl -sfL https://repo1.maven.org/maven2/com/madgag/bfg/1.14.0/bfg-1.14.0.jar > /usr/share/bfg.jar
 ADD bfg.sh /usr/local/bin/bfg
 
 USER git
